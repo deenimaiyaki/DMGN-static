@@ -76,11 +76,47 @@ No key, token or credential appears anywhere in `public/`. Verify with
 
 ## 5. Cloudflare Pages setup
 
-1. Pages → **Create a project** → Connect to Git → select the repository.
-2. Framework preset **None**. Build command `npm run build`. Output directory `public`.
-3. Deploy. You get `dmgn-agency.pages.dev`.
-4. **Test on the `.pages.dev` URL before touching DNS** — the whole site works there.
-5. Custom domains → add `www.deenimaiyaki.name.ng`, then add `deenimaiyaki.name.ng`.
+Deployment is handled by the **Pages Git integration**. Cloudflare clones the repo, runs the
+build, and publishes `public/` itself. There is **no deploy command and no API token** in this
+path — do not add one.
+
+```
+GitHub main → Cloudflare Pages Git integration → npm install → npm run build → public/ → deploy
+```
+
+1. Workers & Pages → **Create** → **Pages** tab → **Connect to Git** → select
+   `deenimaiyaki/DMGN`. Use the *Pages* tab: the *Workers* "Import a repository" flow creates a
+   **Workers Build**, which is a different product — see §5.1.
+2. Project name **`dmgn`**. It must equal `name` in `wrangler.toml`, or the build fails with a
+   project-name mismatch.
+3. Production branch **`main`**. Framework preset **None**.
+   Build command `npm run build`. Build output directory `public`. Root directory `/`.
+4. Deploy. You get `dmgn.pages.dev`.
+5. **Test on the `.pages.dev` URL before touching DNS** — the whole site works there.
+6. Custom domains → add `www.deenimaiyaki.name.ng`, then add `deenimaiyaki.name.ng`.
+
+`wrangler.toml` is read by the Pages build and supplies `pages_build_output_dir`, so the output
+directory is declared in the repo as well as in the dashboard. Keep the two in agreement.
+
+### 5.1 If the dashboard shows a *Deploy command* / *Version command*
+
+Those fields belong to **Workers Builds**, not Pages. A project created through the Workers
+"Import a repository" flow builds the repo and then runs `npx wrangler deploy`, which fails here
+with *"Missing entry-point to Worker script or to assets directory"* — correctly, because this
+repository has no Worker entry point.
+
+Replacing that deploy command with `npx wrangler pages deploy public --project-name dmgn` invokes
+the right product, but it then needs an API token, and a `CLOUDFLARE_API_TOKEN` build variable
+overrides the credentials Cloudflare injects for the build. If that token lacks
+**Account → Cloudflare Pages → Edit** the deploy fails with `Authentication error [code: 10000]`.
+
+The fix is not a broader token. **Delete the Workers Builds project and create a Pages project as
+in §5.** Pages Git integration deploys with no token at all — simpler and strictly more secure.
+Also remove any `CLOUDFLARE_API_TOKEN` variable from the project's build environment; nothing in
+this repository needs it.
+
+A manual `wrangler pages deploy` from a laptop remains available as a break-glass path; it uses
+`wrangler login` (OAuth), not a stored token.
 
 ## 6. DNS configuration — read this before changing anything
 
@@ -120,8 +156,8 @@ confirm they match:
 
 | Type | Name | Content | Proxy |
 |---|---|---|---|
-| CNAME | `www` | `dmgn-agency.pages.dev` | Proxied (orange) |
-| CNAME | `@` | `dmgn-agency.pages.dev` | Proxied (orange) — Cloudflare flattens this at the apex |
+| CNAME | `www` | `dmgn.pages.dev` | Proxied (orange) |
+| CNAME | `@` | `dmgn.pages.dev` | Proxied (orange) — Cloudflare flattens this at the apex |
 
 Delete the old website `A`/`AAAA`/`CNAME` records **only after** the new ones resolve and the site
 loads. If the old host also served mail, note that MX records are independent of A records — moving
