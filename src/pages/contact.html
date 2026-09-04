@@ -1,0 +1,140 @@
+<section class="masthead field">
+  <div class="shell">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <ol><li><a href="/">Home</a></li><li aria-current="page">Contact</li></ol>
+    </nav>
+    <p class="eyebrow">Project enquiry</p>
+    <h1>Start a Project.</h1>
+    <p class="lede">
+      Tell us about the brand, the challenge and the timeline. The more you can share, the more
+      useful our first reply will be. We respond within two working days.
+    </p>
+  </div>
+</section>
+
+<section class="section" aria-label="Project enquiry">
+  <div class="shell">
+    <div class="grid grid--2 items-start">
+
+      <form class="form" id="enquiry-form" action="/api/contact" method="post" novalidate>
+        <p class="form-status" id="form-status" role="status" aria-live="polite" tabindex="-1"></p>
+
+        <div class="form__grid form__grid--2">
+          <div class="field-group">
+            <label for="name">Name <span class="req" aria-hidden="true">*</span></label>
+            <input class="control" id="name" name="name" type="text" autocomplete="name" required>
+            <p class="field-error" id="name-error"></p>
+          </div>
+          <div class="field-group">
+            <label for="company">Company or organisation</label>
+            <input class="control" id="company" name="company" type="text" autocomplete="organization">
+            <p class="field-error" id="company-error"></p>
+          </div>
+        </div>
+
+        <div class="form__grid form__grid--2">
+          <div class="field-group">
+            <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input class="control" id="email" name="email" type="email" autocomplete="email" required>
+            <p class="field-error" id="email-error"></p>
+          </div>
+          <div class="field-group">
+            <label for="phone">Phone</label>
+            <input class="control" id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel">
+            <p class="field-error" id="phone-error"></p>
+          </div>
+        </div>
+
+        <div class="form__grid form__grid--2">
+          <div class="field-group">
+            <label for="projectType">Project type <span class="req" aria-hidden="true">*</span></label>
+            <select class="control" id="projectType" name="projectType" required>
+              <option value="">Select one</option>
+              <option>Brand Identity</option>
+              <option>Website / Digital</option>
+              <option>Campaign</option>
+              <option>Content</option>
+              <option>Marketing</option>
+              <option>Creative Production</option>
+              <option>Other</option>
+            </select>
+            <p class="field-error" id="projectType-error"></p>
+          </div>
+          <div class="field-group">
+            <label for="budget">Budget range</label>
+            <select class="control" id="budget" name="budget">
+              <option value="">Prefer not to say</option>
+              <option>Under ₦500,000</option>
+              <option>₦500,000 – ₦2,000,000</option>
+              <option>₦2,000,000 – ₦5,000,000</option>
+              <option>Over ₦5,000,000</option>
+              <option>Not yet defined</option>
+            </select>
+            <p class="hint">Indicative only. It helps us scope the right approach.</p>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="description">Project description <span class="req" aria-hidden="true">*</span></label>
+          <textarea class="control" id="description" name="description" rows="6" minlength="20" required
+                    aria-describedby="description-hint"></textarea>
+          <p class="hint" id="description-hint">What are you making, who is it for, and what needs to change?</p>
+          <p class="field-error" id="description-error"></p>
+        </div>
+
+        <div class="form__grid form__grid--2">
+          <div class="field-group">
+            <label for="timeline">Timeline</label>
+            <select class="control" id="timeline" name="timeline">
+              <option value="">Select one</option>
+              <option>As soon as possible</option>
+              <option>Within 1 month</option>
+              <option>1 – 3 months</option>
+              <option>3 – 6 months</option>
+              <option>Exploring options</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label for="referral">How did you hear about us?</label>
+            <input class="control" id="referral" name="referral" type="text">
+          </div>
+        </div>
+
+        <!-- Honeypot: hidden from people, tempting to bots. Never shown, never required. -->
+        <div class="hp" aria-hidden="true">
+          <label for="website">Leave this field empty</label>
+          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+
+        <div>
+          <button class="btn btn--primary" type="submit">Start a Project</button>
+          <p class="hint mt-3">
+            Fields marked <span class="req" aria-hidden="true">*</span><span class="visually-hidden">with an asterisk</span> are required.
+          </p>
+        </div>
+      </form>
+
+      <aside class="stack-lg" data-reveal>
+        <div class="cap">
+          <h2 class="h-md">Talk to us directly</h2>
+          <address class="contact-list">
+            <a href="mailto:contactdmgn@gmail.com">contactdmgn@gmail.com</a>
+            <a href="tel:+2349067628213">+234 906 762 8213</a>
+            <a href="https://wa.me/message/H3LS7DGKO65VM1" rel="noopener" target="_blank">Message us on WhatsApp</a>
+            <span>ZB 76 Aliyu Maiyaki Street, Fadukpe<br>Minna, Niger State, Nigeria</span>
+          </address>
+        </div>
+
+        <div class="cap">
+          <h2 class="h-md">What happens next</h2>
+          <ul>
+            <li>We read your brief and reply within two working days.</li>
+            <li>If it's a fit, we set up a call to understand the ambition.</li>
+            <li>You get a written proposal with scope, approach and cost.</li>
+          </ul>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+</section>

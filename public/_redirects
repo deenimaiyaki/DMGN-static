@@ -1,0 +1,18 @@
+# Exact paths first — Cloudflare matches in file order.
+/2026/08/31/opay-debunks-viral-shutdown-rumour-assures-customers-were-going-nowhere/  /insights/opay-shutdown-rumour/  301
+/2026/08/24/%E2%9C%8D%EF%B8%8F-a-message-from-our-founderby-zahradeen-aliyu-maiyaki/  /insights/founder-message/  301
+/2026/08/22/dmgn-family/  /insights/one-network-one-vision/  301
+/2026/08/25/sweatcoin-dmgn-lifestyle/  /insights/sweatcoin-dmgn-lifestyle/  301
+/2026/08/25/walk-more-earn-more-with-sweatcoin/  /insights/walk-more-earn-more/  301
+/wp-login.php     /            301
+/xmlrpc.php       /            301
+
+# Retired WordPress surfaces (wildcards).
+/testing/*        /                   301
+/wp-admin/*       /                   301
+/wp-json/*        /                   301
+/feed/*           /insights/feed.xml  301
+/comments/feed/*  /insights/feed.xml  301
+/category/*       /insights/          301
+/tag/*            /insights/          301
+/2026/*           /insights/          301
