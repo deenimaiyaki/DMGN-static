@@ -9,16 +9,12 @@ been deployed and no DNS has been touched — both need your explicit go-ahead.
 ## 1. Architecture
 
 ```
-Browser
-  │
-  ├── static HTML/CSS/JS/images ──► Cloudflare Pages (CDN edge)
-  │
-  └── POST /api/contact ──────────► Pages Function (Worker)
-                                        │
-                                        └──► transactional email provider (Resend)
-                                                  │
-                                                  └──► contactdmgn@gmail.com
+Browser ──► Cloudflare Pages (CDN edge) ──► static HTML / CSS / JS / images
 ```
+
+That is the whole architecture. **There is no server-side runtime** — no Worker, no Pages
+Functions, no API routes, no Node server, no database, no backend of any kind. Cloudflare serves
+the contents of `public/` as files and nothing executes on request.
 
 Hand-authored static HTML. No framework, no bundler, no runtime dependencies. The build step
 exists only to share the header/footer across pages and to generate `sitemap.xml`, the RSS feed,
@@ -33,7 +29,6 @@ dmgn-agency/
 │   ├── assets/{css,js,fonts,img}
 │   ├── _headers          security + caching headers
 │   └── _redirects        legacy WordPress URL map
-├── functions/api/contact.js   Pages Function (form endpoint)
 └── scripts/{build,build-images,audit}.js
 ```
 
@@ -56,20 +51,19 @@ public
 
 ## 4. Environment variables
 
-Set in **Pages → Settings → Environment variables**, for both Production and Preview.
+**None.** The site is static and holds no credentials, so there is nothing to configure.
 
-| Name | Type | Value |
-|---|---|---|
-| `RESEND_API_KEY` | **Secret** | API key from resend.com |
-| `ENQUIRY_TO` | Plaintext | `contactdmgn@gmail.com` |
-| `ENQUIRY_FROM` | Plaintext | A verified sender on your domain, e.g. `website@deenimaiyaki.name.ng` |
+Specifically, none of these are used any more:
 
-`MAIL_ENDPOINT` is optional and exists only to point local development at a mock. **Do not set it
-in production.**
+| Name | Status |
+|---|---|
+| `RESEND_API_KEY` | **Not used.** Removed with the server-side contact endpoint. |
+| `ENQUIRY_TO` | **Not used.** The recipient is the `mailto:` address in the form markup. |
+| `ENQUIRY_FROM` | **Not used.** The visitor's own mail client sends the message. |
+| `MAIL_ENDPOINT` | **Not used.** Existed only to point local dev at a mock. |
+| `CLOUDFLARE_API_TOKEN` | **Not used, and must not be set.** Pages Git integration authenticates itself; a token variable here overrides Cloudflare's own build credentials and breaks the deploy. |
 
-Until these are set the endpoint returns `500 {"error":"The enquiry service is not configured yet."}`
-and the form shows the fallback message with the phone number and email address. Nothing crashes,
-but **no enquiry is delivered** — set them before announcing the site.
+If any of these are still set on the Cloudflare project, delete them.
 
 No key, token or credential appears anywhere in `public/`. Verify with
 `grep -ri "api[_-]key\|secret\|token" public/`.
@@ -218,24 +212,38 @@ No caching is applied to `/api/*` (`no-store`).
 After a deploy that changes CSS or JS, either wait out the one-day TTL or **Caching → Configuration
 → Purge Everything**.
 
-## 10. Form / backend
+## 10. Contact form — static, no backend
 
-`functions/api/contact.js`. Verified locally end to end against a mock provider:
+The enquiry form composes an email in the visitor's own mail client. Nothing is posted to a
+server, because there is no server.
 
-| Case | Result |
+- **Markup:** `src/pages/contact.html` — `<form action="mailto:contactdmgn@gmail.com"
+  method="post" enctype="text/plain">`.
+- **Enhancement:** `public/assets/js/contact-form.js` — client-side only. It keeps the existing
+  inline validation and status messaging, then builds a `mailto:` URL with a readable subject
+  and a labelled body and navigates to it.
+- **Without JavaScript:** the form's native `mailto:` action still opens the mail client. The
+  body is less tidy, but nothing is lost.
+
+`_headers` allows this: the CSP `form-action` directive is `'self' mailto:`.
+
+### What this costs
+
+Be aware of the trade-off, because it is real:
+
+| | Behaviour |
 |---|---|
-| Valid JSON submission | `200 {"ok":true}`, provider received correct `to`/`reply_to`/`subject`/`html` |
-| Valid form post without JavaScript | `303` → `/contact/thank-you/`, email sent |
-| Missing/invalid fields | `422` with the offending field names |
-| Honeypot filled | `200` and silently discarded, nothing sent |
-| Env vars unset | `500`, clear message, page falls back to phone/email |
-| `GET /api/contact` | `405` |
+| Delivery | **Not guaranteed.** The visitor must have a working mail client and must press send themselves. |
+| Webmail users | A browser with no registered `mailto:` handler does nothing visible. The form text and the sidebar both give the address and phone number for exactly this case. |
+| Address exposure | `contactdmgn@gmail.com` is in the page source and can be scraped. It was already published in the sidebar, so this is not a new exposure. |
+| Delivery record | None. There is no log of attempted enquiries. |
 
-Client behaviour verified in a real browser: validation on blur (not keystroke), errors rendered
-below their field with `aria-invalid`, focus moved to the first invalid field, status announced via
-`role="status"`, form reset on success.
+This is inherent to a static site with no external form service. If reliable delivery matters
+later, the options are a third-party form endpoint (Formspree, Netlify Forms, Basin — an external
+account, no code) or restoring a Pages Function. Both are decisions for DMGN, not defaults.
 
-To use a provider other than Resend, replace `sendEmail()` — nothing else changes.
+**`/contact/thank-you/` still builds and is still a valid route**, but nothing links to it now
+that there is no form POST to redirect. It is harmless; deleting it is a content decision.
 
 ## 11. Rollback
 
@@ -249,7 +257,7 @@ To use a provider other than Resend, replace `sendEmail()` — nothing else chan
 ```bash
 npm run build          # regenerate public/
 npm run serve          # http://localhost:8787 — static check
-npm run dev            # http://localhost:8788 — wrangler, with _headers/_redirects/Functions
+npm run dev            # http://localhost:8788 — wrangler, with _headers/_redirects
 npm run audit -- http://localhost:8788 ./shots
 git commit -am "..." && git push     # Pages builds and deploys the branch
 ```

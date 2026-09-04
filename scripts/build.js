@@ -388,7 +388,7 @@ write(
 /* robots.txt */
 write(
   "robots.txt",
-  `User-agent: *\nAllow: /\nDisallow: /api/\n\nSitemap: ${ORIGIN}/sitemap.xml\n`
+  `User-agent: *\nAllow: /\n\nSitemap: ${ORIGIN}/sitemap.xml\n`
 );
 
 /* Legacy WordPress URLs → new Insights URLs, plus host canonicalisation. */

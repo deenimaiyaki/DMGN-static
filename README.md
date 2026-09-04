@@ -1,21 +1,24 @@
 # DMGN — Creative Agency
 
 Production website for **Deeni Maiyaki Global Network**, rebuilt from the previous WordPress site
-as a static site for Cloudflare Pages.
+as a purely static HTML/CSS/JS site for Cloudflare Pages.
+
+No server-side runtime: no Worker, no Pages Functions, no API routes, no Node server, no database.
+The build turns `src/` into `public/`, and Cloudflare serves those files.
 
 > We Create Brands That Move People.
 
 - **[AUDIT.md](AUDIT.md)** — what the old site contained, the migration map, service
   classification, and the content that needs a decision from DMGN.
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** — Cloudflare Pages, DNS (including how not to break email),
-  SSL, caching, the form backend, and rollback.
+  SSL, caching, the contact form, and rollback.
 
 ## Quick start
 
 ```bash
 npm run build     # src/ -> public/
 npm run serve     # static preview on :8787
-npm run dev       # wrangler: Functions + _headers + _redirects on :8788
+npm run dev       # wrangler: _headers + _redirects on :8788
 npm run audit -- http://localhost:8788 ./shots
 ```
 
@@ -30,7 +33,7 @@ Node 18+. The build itself has zero dependencies; `playwright` and `wrangler` ar
 | `scripts/build.js` | Page manifest (titles, descriptions, schema), assembly, `sitemap.xml`, `feed.xml`, `robots.txt`, `_redirects`. **Add a new page here.** |
 | `public/assets/css/main.css` | The whole design system, in 17 commented sections. |
 | `public/assets/js/site.js` | Sticky nav, mobile menu, scroll reveal. 2.7 KB. |
-| `functions/api/contact.js` | Project enquiry endpoint. |
+| `public/assets/js/contact-form.js` | Enquiry form: validation, then composes a `mailto:`. Client-side only. |
 | `scripts/build-images.sh` | Regenerates responsive WebP from the original source images. |
 | `scripts/audit.js` | Accessibility / SEO / layout / link gate. |
 
@@ -67,6 +70,9 @@ navigation — that menu is deliberately six items.
   gradient field — navigation, overlays, capability cards, CTA bands.
 - **No third-party origins.** Fonts are self-hosted and subset. Keep it that way; the CSP forbids
   anything else without an explicit change.
+- **No backend, ever.** The enquiry form opens the visitor's mail client via `mailto:`; see
+  `DEPLOYMENT.md` §10 for how it works and what it costs. Adding a Function or an API route would
+  end the site's static guarantee — treat that as an architectural decision, not a fix.
 - **Do not invent content.** Client names, testimonials, statistics and results go on the site only
   when DMGN has supplied and approved them. See `AUDIT.md` §4.
 

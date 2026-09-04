@@ -46,7 +46,7 @@ Source audited: `www.deenimaiyaki.name.ng` (SiteSucker export of the live WordPr
 | "Testimonials" | **removed** | See §4 |
 | "Blogs & Articles" | `/insights/` with four content pillars | All 5 posts migrated, 301s in place |
 | FAQ | folded into `/about/` and `/contact/` "What happens next" | |
-| Contact form (4 fields) | `/contact/` project enquiry (9 fields) | Now a Pages Function |
+| Contact form (4 fields) | `/contact/` project enquiry (9 fields) | Static `mailto:` compose |
 | `/testing/` | **deleted**, 301 → `/` | |
 | `/category/*`, `/tag/*`, `/2026/*` | 301 → `/insights/` (posts 301 to their new URLs) | |
 | `/feed/`, `/comments/feed/` | 301 → `/insights/feed.xml` | |

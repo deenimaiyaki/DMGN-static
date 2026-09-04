@@ -1,5 +1,10 @@
-/* DMGN — project enquiry form. Progressive enhancement: the form posts
-   natively without JS; with JS it submits over fetch and reports inline. */
+/* DMGN — project enquiry form. Fully static: there is no backend.
+
+   Without JS the form posts natively to its mailto: action, which opens the
+   visitor's mail client. With JS we do the same thing but compose a readable,
+   labelled message body first, and keep the inline validation and status UI.
+
+   Client-side only. No fetch, no API, no credentials. */
 (function () {
   "use strict";
 
@@ -7,9 +12,6 @@
   if (!form) return;
 
   var status = document.getElementById("form-status");
-  var submit = form.querySelector('button[type="submit"]');
-  var submitLabel = submit ? submit.textContent : "";
-
   var messages = {
     valueMissing: "This field is required.",
     typeMismatch: {
@@ -66,53 +68,64 @@
     status.textContent = text;
   }
 
+  // Fields in the order they should appear in the email, with readable labels.
+  var LABELS = [
+    ["name", "Name"],
+    ["company", "Company or organisation"],
+    ["email", "Email"],
+    ["phone", "Phone"],
+    ["projectType", "Project type"],
+    ["budget", "Budget range"],
+    ["timeline", "Timeline"],
+    ["referral", "How they heard about us"],
+    ["description", "Project description"]
+  ];
+
+  var MAILTO = form.getAttribute("action") || "mailto:contactdmgn@gmail.com";
+  var ADDRESS = MAILTO.replace(/^mailto:/, "").split("?")[0];
+
+  function compose(data) {
+    var lines = [];
+    LABELS.forEach(function (pair) {
+      var value = (data[pair[0]] || "").trim();
+      if (!value) return;
+      // The description is free text, so give it its own block.
+      if (pair[0] === "description") lines.push("", pair[1] + ":", value);
+      else lines.push(pair[1] + ": " + value);
+    });
+    return lines.join("\n");
+  }
+
   form.addEventListener("submit", function (event) {
+    // Always take over: the native mailto post produces a far uglier message.
+    event.preventDefault();
+
     var invalid = form.querySelectorAll(":invalid");
     if (invalid.length) {
-      event.preventDefault();
       Array.prototype.forEach.call(invalid, showError);
       setStatus("error", "Please correct the highlighted fields.");
       invalid[0].focus();
       return;
     }
 
-    event.preventDefault();
-    setStatus("", "");
-    if (submit) {
-      submit.disabled = true;
-      submit.textContent = "Sending…";
-    }
+    var data = {};
+    Array.prototype.forEach.call(form.elements, function (input) {
+      if (input.name) data[input.name] = input.value;
+    });
 
-    fetch(form.action, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Accept: "application/json" },
-      body: JSON.stringify(Object.fromEntries(new FormData(form).entries()))
-    })
-      .then(function (res) {
-        return res.json().catch(function () { return {}; }).then(function (data) {
-          return { ok: res.ok, data: data };
-        });
-      })
-      .then(function (result) {
-        if (!result.ok) throw new Error(result.data.error || "Request failed");
-        form.reset();
-        setStatus(
-          "ok",
-          "Thank you — your enquiry has reached us. We reply to every project brief within two working days."
-        );
-        if (status) status.focus();
-      })
-      .catch(function () {
-        setStatus(
-          "error",
-          "We could not send your enquiry. Please email contactdmgn@gmail.com or call +234 906 762 8213."
-        );
-      })
-      .finally(function () {
-        if (submit) {
-          submit.disabled = false;
-          submit.textContent = submitLabel;
-        }
-      });
+    var subject = "Project enquiry — " + (data.projectType || "General") + " — " + (data.name || "");
+    var href =
+      "mailto:" + ADDRESS +
+      "?subject=" + encodeURIComponent(subject) +
+      "&body=" + encodeURIComponent(compose(data));
+
+    setStatus(
+      "ok",
+      "Opening your email app with the brief ready to send. If nothing happens, email " +
+        ADDRESS + " or call +234 906 762 8213."
+    );
+    if (status) status.focus();
+
+    window.location.href = href;
   });
 })();

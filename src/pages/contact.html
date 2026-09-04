@@ -16,7 +16,8 @@
   <div class="shell">
     <div class="grid grid--2 items-start">
 
-      <form class="form" id="enquiry-form" action="/api/contact" method="post" novalidate>
+      <form class="form" id="enquiry-form" action="mailto:contactdmgn@gmail.com"
+            method="post" enctype="text/plain" novalidate>
         <p class="form-status" id="form-status" role="status" aria-live="polite" tabindex="-1"></p>
 
         <div class="form__grid form__grid--2">
@@ -100,16 +101,12 @@
           </div>
         </div>
 
-        <!-- Honeypot: hidden from people, tempting to bots. Never shown, never required. -->
-        <div class="hp" aria-hidden="true">
-          <label for="website">Leave this field empty</label>
-          <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
-        </div>
-
         <div>
           <button class="btn btn--primary" type="submit">Start a Project</button>
           <p class="hint mt-3">
             Fields marked <span class="req" aria-hidden="true">*</span><span class="visually-hidden">with an asterisk</span> are required.
+            Submitting opens your email app with the brief filled in, ready to send. If nothing
+            opens, email <a href="mailto:contactdmgn@gmail.com">contactdmgn@gmail.com</a> directly.
           </p>
         </div>
       </form>

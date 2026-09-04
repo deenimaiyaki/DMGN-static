@@ -1,15 +1,17 @@
 # Cloudflare Pages configuration.
 #
-# This project is a STATIC SITE + Pages Functions, deployed by the Cloudflare
-# Pages *Git integration* (GitHub main -> npm install -> npm run build -> public/).
-# It is not a Worker: there is no `main` entry point, and the only server-side
-# code is functions/api/contact.js, which Pages compiles as a Pages Function.
+# DMGN is a purely static HTML/CSS/JS website. There is no server-side runtime:
+# no Worker, no Pages Functions, no API routes, no database. The build turns
+# src/ into public/, and Cloudflare serves public/ as files.
+#
+# Deployment is the Pages Git integration (GitHub main -> npm install ->
+# npm run build -> public/). No deploy command and no API token are involved.
 #
 # `name` MUST match the Cloudflare Pages project name exactly, or the Git build
 # fails with a project-name mismatch.
 #
-# Secrets (RESEND_API_KEY, CLOUDFLARE_API_TOKEN, ...) never belong in this file.
-# They live in the Cloudflare dashboard only. See DEPLOYMENT.md §4.
+# This file also keeps `npx wrangler pages dev public` and, as a break-glass
+# path, `npx wrangler pages deploy public --project-name dmgn` working.
 
 name = "dmgn"
 pages_build_output_dir = "public"
